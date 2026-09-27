@@ -1,0 +1,28 @@
+name: Verify harness (composite action)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run CPG Nuclei verification harness
+        uses: ./
+        with:
+          template: templates/fixture-tp.yaml
+          target: http://127.0.0.1:5000
+
+      - name: Upload harness report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: harness-reports
+          path: harness/reports/
+          if-no-files-found: ignore

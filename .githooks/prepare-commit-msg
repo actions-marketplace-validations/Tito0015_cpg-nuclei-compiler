@@ -1,0 +1,6 @@
+#!/bin/sh
+# Remove unwanted Co-authored-by trailers from commit messages.
+COMMIT_MSG_FILE=$1
+[ -z "$COMMIT_MSG_FILE" ] || [ ! -f "$COMMIT_MSG_FILE" ] && exit 0
+grep -viE '^Co-authored-by:.*(cursoragent@cursor\.com|Cursor <cursoragent)' "$COMMIT_MSG_FILE" > "$COMMIT_MSG_FILE.tmp" && mv "$COMMIT_MSG_FILE.tmp" "$COMMIT_MSG_FILE"
+exit 0

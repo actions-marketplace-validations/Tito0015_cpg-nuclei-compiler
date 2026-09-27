@@ -89,6 +89,36 @@ cargo run --example run_cpg_pipeline -- --target path/to/main.c
 python -m harness.docker_runner --template templates/CVE-2024-51483.yaml --target http://127.0.0.1:5000
 ```
 
+## GitHub Action
+
+This repository publishes a **composite action** ([`action.yml`](action.yml)) that runs the Docker verification harness on a template path in the **caller** repository.
+
+**Requirements**
+
+- Check out the repository that contains the template YAML first (`actions/checkout`).
+- Use a Linux runner with Docker (`ubuntu-latest` on GitHub-hosted runners).
+- Relative `template` paths are resolved against `github.workspace` (the caller checkout).
+
+**Consumer workflow**
+
+```yaml
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Tito0015/cpg-nuclei-compiler@v1
+        with:
+          template: path/to/template.yaml
+          target: http://127.0.0.1:5000
+```
+
+**Same-repo CI** (dogfood) uses `uses: ./` — see [`.github/workflows/verify-harness.yml`](.github/workflows/verify-harness.yml).
+
+Public repositories with a root `action.yml` can appear on the GitHub Marketplace automatically. Consumers pin a release with `@v1` (or another semver tag) after you publish a tag and release on this repository.
+
+For refactoring **projectdiscovery/nuclei-templates** in a fork, see [`docs/nuclei/UPSTREAM_REFACTORING_PIPELINE.md`](docs/nuclei/UPSTREAM_REFACTORING_PIPELINE.md).
+
 ## Non-destructive Nuclei SOP
 
 Some community templates (including `CVE-2024-51483`) **mutate application settings** during execution. Against a live Changedetection.io instance:
